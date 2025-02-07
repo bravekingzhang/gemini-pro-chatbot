@@ -1,50 +1,63 @@
-# Welcome to your Expo app 👋
+# Gemini Pro Chatbot
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A beautiful and feature-rich mobile chat application powered by Google's Gemini Pro AI model. Built with Expo and React Native.
 
-## Get started
+## Features
+
+- 🤖 Powered by Google's Gemini Pro AI model
+- 💬 Real-time streaming responses
+- 🎨 Beautiful dark theme UI
+- 📝 Code syntax highlighting
+- 💾 Persistent message storage
+- ✏️ Message editing support
+- ⚙️ Customizable system prompts
+
+## Getting Started
 
 1. Install dependencies
-
    ```bash
    npm install
    ```
 
-2. Start the app
+2. Configure your API key
+   - Get your Gemini Pro API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+   - Add your API key in the app's settings screen
 
+3. Start the app
    ```bash
-    npx expo start
+   npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+4. Run on your device:
+   - iOS: Press 'i' to open in iOS Simulator
+   - Android: Press 'a' to open in Android Emulator
+   - Scan QR code with Expo Go app on your physical device
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Usage
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+1. Launch the app and go to the Settings tab
+2. Enter your Gemini Pro API key
+3. Return to the Chat tab
+4. Start chatting with the AI!
 
-## Get a fresh project
+The AI assistant can help you with:
+- Answering questions
+- Writing and explaining code
+- Analyzing data
+- And much more!
 
-When you're ready, run:
+## Tech Stack
 
-```bash
-npm run reset-project
-```
+- Expo / React Native
+- Google Gemini Pro API
+- React Navigation
+- AsyncStorage for persistence
+- Syntax highlighting for code blocks
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Contributing
 
-## Learn more
+Feel free to open issues and pull requests for any improvements you'd like to add!
 
-To learn more about developing your project with Expo, look at the following resources:
+## License
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+MIT License - feel free to use this code for your own projects!
