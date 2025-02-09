@@ -1,8 +1,64 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Chat, Message } from '../constants/Config';
+import { Chat, Message, Agent, DEFAULT_AGENTS } from '../constants/Config';
 
 const CHATS_STORAGE_KEY = '@gemini_chats';
+const AGENTS_STORAGE_KEY = '@gemini_agents';
 
+// Agent 相关操作
+export const initializeAgents = async () => {
+  try {
+    const existingAgents = await loadAgents();
+    if (existingAgents.length === 0) {
+      await AsyncStorage.setItem(AGENTS_STORAGE_KEY, JSON.stringify(DEFAULT_AGENTS));
+      return DEFAULT_AGENTS;
+    }
+    return existingAgents;
+  } catch (error) {
+    console.error('Error initializing agents:', error);
+    return DEFAULT_AGENTS;
+  }
+};
+
+export const loadAgents = async (): Promise<Agent[]> => {
+  try {
+    const agentsJson = await AsyncStorage.getItem(AGENTS_STORAGE_KEY);
+    return agentsJson ? JSON.parse(agentsJson) : [];
+  } catch (error) {
+    console.error('Error loading agents:', error);
+    return [];
+  }
+};
+
+export const saveAgent = async (agent: Agent) => {
+  try {
+    const existingAgents = await loadAgents();
+    const agentIndex = existingAgents.findIndex(a => a.id === agent.id);
+    
+    if (agentIndex !== -1) {
+      existingAgents[agentIndex] = agent;
+    } else {
+      existingAgents.push(agent);
+    }
+    
+    await AsyncStorage.setItem(AGENTS_STORAGE_KEY, JSON.stringify(existingAgents));
+  } catch (error) {
+    console.error('Error saving agent:', error);
+    throw error;
+  }
+};
+
+export const deleteAgent = async (agentId: string) => {
+  try {
+    const existingAgents = await loadAgents();
+    const updatedAgents = existingAgents.filter(agent => agent.id !== agentId);
+    await AsyncStorage.setItem(AGENTS_STORAGE_KEY, JSON.stringify(updatedAgents));
+  } catch (error) {
+    console.error('Error deleting agent:', error);
+    throw error;
+  }
+};
+
+// 现有的 Chat 相关操作
 export const saveChat = async (chat: Chat) => {
   try {
     const existingChatsJson = await AsyncStorage.getItem(CHATS_STORAGE_KEY);

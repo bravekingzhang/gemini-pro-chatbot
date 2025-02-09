@@ -45,7 +45,8 @@
     "react-native-syntax-highlighter": "^2.1.0",
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.5",
-    "react-syntax-highlighter": "^15.6.1"
+    "react-syntax-highlighter": "^15.6.1",
+    "expo-clipboard": "~7.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
