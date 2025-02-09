@@ -9,12 +9,15 @@ import {
   Alert,
   Switch,
   Linking,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StatusBar } from 'expo-status-bar';
 import { MaterialIcons } from '@expo/vector-icons';
 import { DEFAULT_SYSTEM_PROMPT } from '@/constants/Config';
 import { useTheme } from '@/contexts/ThemeContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const API_KEY_STORAGE_KEY = '@gemini_api_key';
 const SYSTEM_PROMPT_STORAGE_KEY = '@gemini_system_prompt';
@@ -122,113 +125,123 @@ export default function SettingsScreen() {
   };
 
   return (
-    <View style={[styles.container, isDarkMode && styles.darkContainer]}>
+    <SafeAreaView edges={['bottom']} style={[styles.container, isDarkMode && styles.darkContainer]}>
       <StatusBar style={isDarkMode ? 'light' : 'dark'} />
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.section}>
-          <Text style={[styles.label, isDarkMode && styles.darkLabel]}>API Key</Text>
-          <View style={styles.apiKeyContainer}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.keyboardAvoidingView}
+      >
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollViewContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.section}>
+            <Text style={[styles.label, isDarkMode && styles.darkLabel]}>API Key</Text>
+            <View style={styles.apiKeyContainer}>
+              <TextInput
+                style={[styles.input, isDarkMode && styles.darkInput]}
+                value={apiKey}
+                onChangeText={setApiKey}
+                placeholder="Enter your Gemini API Key"
+                placeholderTextColor={isDarkMode ? '#666' : '#999'}
+                autoCapitalize="none"
+                autoCorrect={false}
+                secureTextEntry
+              />
+              <Pressable
+                style={[styles.getApiKeyButton, isDarkMode && styles.darkButton]}
+                onPress={handleGetApiKey}
+              >
+                <Text style={[styles.getApiKeyText, isDarkMode && styles.darkButtonText]}>Get API Key</Text>
+              </Pressable>
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={[styles.label, isDarkMode && styles.darkLabel]}>System Prompt</Text>
             <TextInput
-              style={[styles.input, isDarkMode && styles.darkInput]}
-              value={apiKey}
-              onChangeText={setApiKey}
-              placeholder="Enter your Gemini API Key"
+              style={[styles.input, styles.textArea, isDarkMode && styles.darkInput]}
+              value={systemPrompt}
+              onChangeText={setSystemPrompt}
+              placeholder="Enter system prompt"
               placeholderTextColor={isDarkMode ? '#666' : '#999'}
-              autoCapitalize="none"
-              autoCorrect={false}
-              secureTextEntry
+              multiline
+              numberOfLines={4}
             />
+          </View>
+
+          <View style={styles.section}>
+            <View style={styles.settingRow}>
+              <View style={styles.settingInfo}>
+                <Text style={[styles.settingLabel, isDarkMode && styles.darkLabel]}>Dark Mode</Text>
+                <Text style={[styles.settingDescription, isDarkMode && styles.darkDescription]}>
+                  Enable dark theme for the app
+                </Text>
+              </View>
+              <Switch
+                value={isDarkMode}
+                onValueChange={setIsDarkMode}
+                trackColor={{ false: '#E5E5E5', true: '#6B4EFF' }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
+
+            <View style={styles.settingRow}>
+              <View style={styles.settingInfo}>
+                <Text style={[styles.settingLabel, isDarkMode && styles.darkLabel]}>Stream Response</Text>
+                <Text style={[styles.settingDescription, isDarkMode && styles.darkDescription]}>
+                  Show AI responses as they are generated
+                </Text>
+              </View>
+              <Switch
+                value={streamResponse}
+                onValueChange={setStreamResponse}
+                trackColor={{ false: '#E5E5E5', true: '#6B4EFF' }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
+
+            <View style={styles.settingRow}>
+              <View style={styles.settingInfo}>
+                <Text style={[styles.settingLabel, isDarkMode && styles.darkLabel]}>Code Highlighting</Text>
+                <Text style={[styles.settingDescription, isDarkMode && styles.darkDescription]}>
+                  Enable syntax highlighting for code blocks
+                </Text>
+              </View>
+              <Switch
+                value={highlightCode}
+                onValueChange={setHighlightCode}
+                trackColor={{ false: '#E5E5E5', true: '#6B4EFF' }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
+          </View>
+
+          <View style={styles.buttonContainer}>
             <Pressable
-              style={[styles.getApiKeyButton, isDarkMode && styles.darkButton]}
-              onPress={handleGetApiKey}
+              style={[styles.button, styles.saveButton, isDarkMode && styles.darkSaveButton]}
+              onPress={handleSave}
+              disabled={isSaving}
             >
-              <Text style={[styles.getApiKeyText, isDarkMode && styles.darkButtonText]}>Get API Key</Text>
+              <Text style={styles.buttonText}>
+                {isSaving ? 'Saving...' : 'Save Settings'}
+              </Text>
+            </Pressable>
+
+            <Pressable
+              style={[styles.button, styles.resetButton, isDarkMode && styles.darkResetButton]}
+              onPress={handleReset}
+            >
+              <Text style={[styles.buttonText, styles.resetButtonText, isDarkMode && styles.darkResetButtonText]}>
+                Reset to Default
+              </Text>
             </Pressable>
           </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={[styles.label, isDarkMode && styles.darkLabel]}>System Prompt</Text>
-          <TextInput
-            style={[styles.input, styles.textArea, isDarkMode && styles.darkInput]}
-            value={systemPrompt}
-            onChangeText={setSystemPrompt}
-            placeholder="Enter system prompt"
-            placeholderTextColor={isDarkMode ? '#666' : '#999'}
-            multiline
-            numberOfLines={4}
-          />
-        </View>
-
-        <View style={styles.section}>
-          <View style={styles.settingRow}>
-            <View style={styles.settingInfo}>
-              <Text style={[styles.settingLabel, isDarkMode && styles.darkLabel]}>Dark Mode</Text>
-              <Text style={[styles.settingDescription, isDarkMode && styles.darkDescription]}>
-                Enable dark theme for the app
-              </Text>
-            </View>
-            <Switch
-              value={isDarkMode}
-              onValueChange={setIsDarkMode}
-              trackColor={{ false: '#E5E5E5', true: '#6B4EFF' }}
-              thumbColor="#FFFFFF"
-            />
-          </View>
-
-          <View style={styles.settingRow}>
-            <View style={styles.settingInfo}>
-              <Text style={[styles.settingLabel, isDarkMode && styles.darkLabel]}>Stream Response</Text>
-              <Text style={[styles.settingDescription, isDarkMode && styles.darkDescription]}>
-                Show AI responses as they are generated
-              </Text>
-            </View>
-            <Switch
-              value={streamResponse}
-              onValueChange={setStreamResponse}
-              trackColor={{ false: '#E5E5E5', true: '#6B4EFF' }}
-              thumbColor="#FFFFFF"
-            />
-          </View>
-
-          <View style={styles.settingRow}>
-            <View style={styles.settingInfo}>
-              <Text style={[styles.settingLabel, isDarkMode && styles.darkLabel]}>Code Highlighting</Text>
-              <Text style={[styles.settingDescription, isDarkMode && styles.darkDescription]}>
-                Enable syntax highlighting for code blocks
-              </Text>
-            </View>
-            <Switch
-              value={highlightCode}
-              onValueChange={setHighlightCode}
-              trackColor={{ false: '#E5E5E5', true: '#6B4EFF' }}
-              thumbColor="#FFFFFF"
-            />
-          </View>
-        </View>
-
-        <View style={styles.buttonContainer}>
-          <Pressable
-            style={[styles.button, styles.saveButton, isDarkMode && styles.darkSaveButton]}
-            onPress={handleSave}
-            disabled={isSaving}
-          >
-            <Text style={styles.buttonText}>
-              {isSaving ? 'Saving...' : 'Save Settings'}
-            </Text>
-          </Pressable>
-
-          <Pressable
-            style={[styles.button, styles.resetButton, isDarkMode && styles.darkResetButton]}
-            onPress={handleReset}
-          >
-            <Text style={[styles.buttonText, styles.resetButtonText, isDarkMode && styles.darkResetButtonText]}>
-              Reset to Default
-            </Text>
-          </Pressable>
-        </View>
-      </ScrollView>
-    </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -240,9 +253,15 @@ const styles = StyleSheet.create({
   darkContainer: {
     backgroundColor: '#000000',
   },
+  keyboardAvoidingView: {
+    flex: 1,
+  },
   scrollView: {
     flex: 1,
+  },
+  scrollViewContent: {
     padding: 16,
+    paddingBottom: Platform.OS === 'ios' ? 100 : 80, // Extra padding for bottom tab bar
   },
   section: {
     marginBottom: 24,
