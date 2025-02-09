@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { GEMINI_API_KEY } from '../constants/Config';
 
 const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
@@ -60,15 +60,16 @@ export const streamCompletion = async (
       }
     }
     onComplete();
-  } catch (error) {
-    console.error('Stream request failed:', error.response?.status);
+  } catch (error: unknown) {
+    const axiosError = error as AxiosError;
+    console.error('Stream request failed:', axiosError.response?.status);
     console.error('Error details:', {
-      message: error.message,
-      response: error.response?.data,
+      message: axiosError.message,
+      response: axiosError.response?.data,
       config: {
-        url: error.config?.url,
-        headers: error.config?.headers,
-        data: error.config?.data
+        url: axiosError.config?.url,
+        headers: axiosError.config?.headers,
+        data: axiosError.config?.data
       }
     });
     onError(error);
@@ -97,15 +98,16 @@ export const generateCompletion = async (messages: ChatMessage[]) => {
     console.log('Completion response data:', response.data);
 
     return response.data.choices[0]?.message?.content || '';
-  } catch (error) {
-    console.error('Completion request failed:', error.response?.status);
+  } catch (error: unknown) {
+    const axiosError = error as AxiosError;
+    console.error('Completion request failed:', axiosError.response?.status);
     console.error('Error details:', {
-      message: error.message,
-      response: error.response?.data,
+      message: axiosError.message,
+      response: axiosError.response?.data,
       config: {
-        url: error.config?.url,
-        headers: error.config?.headers,
-        data: error.config?.data
+        url: axiosError.config?.url,
+        headers: axiosError.config?.headers,
+        data: axiosError.config?.data
       }
     });
     throw error;
