@@ -16,23 +16,36 @@ export const streamCompletion = async (
 ) => {
   try {
     console.log('Sending stream request with messages:', JSON.stringify(messages, null, 2));
+    console.log('Using API URL:', BASE_URL);
+
+    const requestConfig = {
+      model: 'gemini-2.0-pro-exp-02-05',
+      messages,
+      stream: true,
+    };
+    console.log('Request config:', JSON.stringify(requestConfig, null, 2));
 
     const response = await axios.post(
       BASE_URL,
-      {
-        model: 'gemini-2.0-pro-exp-02-05',
-        messages,
-        stream: true,
-      },
+      requestConfig,
       {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${GEMINI_API_KEY}`,
           'Accept': 'text/event-stream'
         },
-        responseType: 'text'
+        responseType: 'text',
+        timeout: 30000, // 30 seconds timeout
+        validateStatus: (status) => {
+          console.log('Response status:', status);
+          return status >= 200 && status < 300;
+        }
       }
     );
+
+    if (!response.data) {
+      throw new Error('No response data received');
+    }
 
     console.log('Stream response status:', response.status);
     console.log('Stream response headers:', response.headers);
@@ -40,6 +53,10 @@ export const streamCompletion = async (
 
     const chunks = response.data.split('\n').filter(Boolean);
     console.log('Filtered chunks:', chunks);
+
+    if (chunks.length === 0) {
+      throw new Error('No chunks received in response');
+    }
 
     for (const chunk of chunks) {
       try {
@@ -62,17 +79,15 @@ export const streamCompletion = async (
     onComplete();
   } catch (error: unknown) {
     const axiosError = error as AxiosError;
-    console.error('Stream request failed:', axiosError.response?.status);
-    console.error('Error details:', {
+    console.error('Stream request failed:', {
+      status: axiosError.response?.status,
+      statusText: axiosError.response?.statusText,
+      data: axiosError.response?.data,
       message: axiosError.message,
-      response: axiosError.response?.data,
-      config: {
-        url: axiosError.config?.url,
-        headers: axiosError.config?.headers,
-        data: axiosError.config?.data
-      }
+      code: axiosError.code,
+      name: axiosError.name
     });
-    onError(error);
+    onError(axiosError);
   }
 };
 
