@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StatusBar } from 'expo-status-bar';
-import { DEFAULT_SYSTEM_PROMPT } from '../constants/Config';
+import { DEFAULT_SYSTEM_PROMPT } from '@/constants/Config';
 
 const API_KEY_STORAGE_KEY = '@gemini_api_key';
 const SYSTEM_PROMPT_STORAGE_KEY = '@gemini_system_prompt';

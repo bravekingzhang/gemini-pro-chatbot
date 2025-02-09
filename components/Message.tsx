@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { CodeBlock } from './CodeBlock';
-import { Message as MessageType } from '../constants/Config';
+import { Message as MessageType } from '@/constants/Config';
 import { MaterialIcons } from '@expo/vector-icons';
 
 interface MessageProps {
@@ -10,8 +10,6 @@ interface MessageProps {
 }
 
 export const Message: React.FC<MessageProps> = ({ message, onEdit }) => {
-  const [isEditing, setIsEditing] = useState(false);
-
   const renderContent = () => {
     const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
     const parts = [];
@@ -19,7 +17,6 @@ export const Message: React.FC<MessageProps> = ({ message, onEdit }) => {
     let match;
 
     while ((match = codeBlockRegex.exec(message.content)) !== null) {
-      // Add text before code block
       if (match.index > lastIndex) {
         parts.push({
           type: 'text',
@@ -27,7 +24,6 @@ export const Message: React.FC<MessageProps> = ({ message, onEdit }) => {
         });
       }
 
-      // Add code block
       parts.push({
         type: 'code',
         language: match[1] || 'javascript',
@@ -37,7 +33,6 @@ export const Message: React.FC<MessageProps> = ({ message, onEdit }) => {
       lastIndex = match.index + match[0].length;
     }
 
-    // Add remaining text
     if (lastIndex < message.content.length) {
       parts.push({
         type: 'text',
@@ -69,18 +64,35 @@ export const Message: React.FC<MessageProps> = ({ message, onEdit }) => {
         message.role === 'user' ? styles.userMessageContent : styles.assistantMessageContent
       ]}>
         {renderContent()}
-        {message.isEdited && (
-          <Text style={styles.editedText}>(edited)</Text>
-        )}
       </View>
-      {message.role === 'user' && onEdit && (
-        <Pressable
-          style={styles.editButton}
-          onPress={() => onEdit(message.id)}
-          hitSlop={8}
-        >
-          <MaterialIcons name="edit" size={16} color="#999999" />
-        </Pressable>
+      {message.role === 'user' && (
+        <View style={styles.actionButtons}>
+          <Pressable
+            style={styles.actionButton}
+            onPress={() => onEdit?.(message.id)}
+            hitSlop={8}
+          >
+            <MaterialIcons name="content-copy" size={16} color="#999999" />
+          </Pressable>
+        </View>
+      )}
+      {message.role === 'assistant' && (
+        <View style={styles.actionButtons}>
+          <Pressable
+            style={styles.actionButton}
+            onPress={() => onEdit?.(message.id)}
+            hitSlop={8}
+          >
+            <MaterialIcons name="content-copy" size={16} color="#999999" />
+          </Pressable>
+          <Pressable
+            style={styles.actionButton}
+            onPress={() => onEdit?.(message.id)}
+            hitSlop={8}
+          >
+            <MaterialIcons name="refresh" size={16} color="#999999" />
+          </Pressable>
+        </View>
       )}
     </View>
   );
@@ -89,49 +101,50 @@ export const Message: React.FC<MessageProps> = ({ message, onEdit }) => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    marginVertical: 4,
-    paddingHorizontal: 12,
-    maxWidth: '85%',
+    marginVertical: 8,
+    paddingHorizontal: 16,
+    alignItems: 'flex-start',
   },
   userMessage: {
-    alignSelf: 'flex-end',
+    justifyContent: 'flex-end',
   },
   assistantMessage: {
-    alignSelf: 'flex-start',
+    justifyContent: 'flex-start',
   },
   avatar: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#333333',
+    backgroundColor: '#6B4EFF',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8,
   },
   messageContent: {
+    maxWidth: '70%',
     borderRadius: 16,
     padding: 12,
-    maxWidth: '100%',
   },
   userMessageContent: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#6B4EFF',
+    borderBottomRightRadius: 4,
   },
   assistantMessageContent: {
-    backgroundColor: '#333333',
+    backgroundColor: '#F5F5F5',
+    borderBottomLeftRadius: 4,
   },
   text: {
-    color: '#FFFFFF',
     fontSize: 16,
     lineHeight: 22,
+    color: '#000000',
   },
-  editedText: {
-    color: '#999999',
-    fontSize: 12,
-    marginTop: 4,
-  },
-  editButton: {
+  actionButtons: {
+    flexDirection: 'row',
     marginLeft: 8,
-    alignSelf: 'center',
+    alignItems: 'center',
+  },
+  actionButton: {
     padding: 4,
+    marginHorizontal: 4,
   },
 }); 
