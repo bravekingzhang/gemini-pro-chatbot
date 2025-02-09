@@ -1,4 +1,4 @@
-package com.brzhang.geminiprochatbot
+package com.your.app
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

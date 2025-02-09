@@ -26,6 +26,7 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="myapp"/>
         <data android:scheme="com.brzhang.geminiprochatbot"/>
+        <data android:scheme="com.your.app"/>
       </intent-filter>
     </activity>
   </application>

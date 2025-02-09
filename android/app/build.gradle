@@ -86,13 +86,13 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.brzhang.geminiprochatbot'
+    namespace 'com.your.app'
     defaultConfig {
-        applicationId 'com.brzhang.geminiprochatbot'
+        applicationId 'com.your.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0.0"
+        versionName "1.0.1"
 
         splits {
             abi {

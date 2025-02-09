@@ -19,7 +19,7 @@ export const streamCompletion = async (
     console.log('Using API URL:', BASE_URL);
 
     const requestConfig = {
-      model: 'gemini-2.0-pro-exp-02-05',
+      model: 'gemini-1.5-flash',
       messages,
       stream: true,
     };
@@ -98,7 +98,7 @@ export const generateCompletion = async (messages: ChatMessage[]) => {
     const response = await axios.post(
       BASE_URL,
       {
-        model: 'gemini-2.0-pro-exp-02-05',
+        model: 'gemini-1.5-flash',
         messages,
       },
       {
