@@ -14,6 +14,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Agent } from '@/constants/Config';
 import { loadAgents, saveAgent } from '@/utils/storage';
 import { nanoid } from 'nanoid/non-secure';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const COLORS = ['#6B4EFF', '#00C853', '#FF6B4E', '#FF9100', '#2196F3', '#9C27B0'];
 const ICONS = ['chat-bubble-outline', 'edit', 'code', 'psychology', 'science', 'school'];
@@ -21,6 +22,7 @@ const ICONS = ['chat-bubble-outline', 'edit', 'code', 'psychology', 'science', '
 export default function AgentEditScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const { isDarkMode } = useTheme();
   const [agent, setAgent] = useState<Agent>({
     id: '',
     name: '',
@@ -87,9 +89,14 @@ export default function AgentEditScreen() {
               style={({ pressed }) => [
                 styles.headerButton,
                 pressed && styles.headerButtonPressed,
+                isDarkMode && styles.darkHeaderButton,
               ]}
             >
-              <MaterialIcons name="close" size={24} color="#000000" />
+              <MaterialIcons
+                name="close"
+                size={24}
+                color={isDarkMode ? '#FFFFFF' : '#000000'}
+              />
             </Pressable>
           ),
           headerRight: () => (
@@ -99,14 +106,24 @@ export default function AgentEditScreen() {
               style={({ pressed }) => [
                 styles.headerButton,
                 pressed && styles.headerButtonPressed,
+                isDarkMode && styles.darkHeaderButton,
               ]}
             >
-              <Text style={styles.saveButtonText}>Save</Text>
+              <Text style={[
+                styles.saveButtonText,
+                isDarkMode && styles.darkSaveButtonText
+              ]}>Save</Text>
             </Pressable>
           ),
         }}
       />
-      <SafeAreaView edges={['bottom']} style={styles.container}>
+      <SafeAreaView
+        edges={['bottom']}
+        style={[
+          styles.container,
+          isDarkMode && styles.darkContainer
+        ]}
+      >
         <ScrollView style={styles.content}>
           <View style={styles.header}>
             <Pressable
@@ -123,40 +140,57 @@ export default function AgentEditScreen() {
             </Pressable>
           </View>
 
-          <Text style={styles.label}>Name</Text>
+          <Text style={[styles.label, isDarkMode && styles.darkLabel]}>Name</Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              isDarkMode && styles.darkInput
+            ]}
             value={agent.name}
             onChangeText={name => setAgent({ ...agent, name })}
             placeholder="Enter agent name"
-            placeholderTextColor="#999999"
+            placeholderTextColor={isDarkMode ? '#666666' : '#999999'}
           />
 
-          <Text style={styles.label}>Description</Text>
+          <Text style={[styles.label, isDarkMode && styles.darkLabel]}>Description</Text>
           <TextInput
-            style={[styles.input, styles.textArea]}
+            style={[
+              styles.input,
+              styles.textArea,
+              isDarkMode && styles.darkInput
+            ]}
             value={agent.description}
             onChangeText={description => setAgent({ ...agent, description })}
             placeholder="Describe what this agent does"
-            placeholderTextColor="#999999"
+            placeholderTextColor={isDarkMode ? '#666666' : '#999999'}
             multiline
             numberOfLines={3}
           />
 
-          <Text style={styles.label}>System Prompt</Text>
+          <Text style={[styles.label, isDarkMode && styles.darkLabel]}>System Prompt</Text>
           <TextInput
-            style={[styles.input, styles.textArea]}
+            style={[
+              styles.input,
+              styles.textArea,
+              isDarkMode && styles.darkInput
+            ]}
             value={agent.systemPrompt}
             onChangeText={systemPrompt => setAgent({ ...agent, systemPrompt })}
             placeholder="Enter the system prompt that defines this agent's behavior"
-            placeholderTextColor="#999999"
+            placeholderTextColor={isDarkMode ? '#666666' : '#999999'}
             multiline
             numberOfLines={5}
           />
 
           {showColorPicker && (
-            <View style={styles.pickerContainer}>
-              <Text style={styles.pickerTitle}>Select Color</Text>
+            <View style={[
+              styles.pickerContainer,
+              isDarkMode && styles.darkPickerContainer
+            ]}>
+              <Text style={[
+                styles.pickerTitle,
+                isDarkMode && styles.darkLabel
+              ]}>Select Color</Text>
               <View style={styles.colorGrid}>
                 {COLORS.map(color => (
                   <Pressable
@@ -173,19 +207,32 @@ export default function AgentEditScreen() {
           )}
 
           {showIconPicker && (
-            <View style={styles.pickerContainer}>
-              <Text style={styles.pickerTitle}>Select Icon</Text>
+            <View style={[
+              styles.pickerContainer,
+              isDarkMode && styles.darkPickerContainer
+            ]}>
+              <Text style={[
+                styles.pickerTitle,
+                isDarkMode && styles.darkLabel
+              ]}>Select Icon</Text>
               <View style={styles.iconGrid}>
                 {ICONS.map(icon => (
                   <Pressable
                     key={icon}
-                    style={styles.iconOption}
+                    style={[
+                      styles.iconOption,
+                      isDarkMode && styles.darkIconOption
+                    ]}
                     onPress={() => {
                       setAgent({ ...agent, icon });
                       setShowIconPicker(false);
                     }}
                   >
-                    <MaterialIcons name={icon as any} size={24} color="#000000" />
+                    <MaterialIcons
+                      name={icon as any}
+                      size={24}
+                      color={isDarkMode ? '#FFFFFF' : '#000000'}
+                    />
                   </Pressable>
                 ))}
               </View>
@@ -201,6 +248,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+  },
+  darkContainer: {
+    backgroundColor: '#000000',
   },
   content: {
     flex: 1,
@@ -235,6 +285,9 @@ const styles = StyleSheet.create({
     color: '#000000',
     marginBottom: 8,
   },
+  darkLabel: {
+    color: '#FFFFFF',
+  },
   input: {
     backgroundColor: '#F5F5F5',
     borderRadius: 8,
@@ -242,6 +295,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#000000',
     marginBottom: 16,
+  },
+  darkInput: {
+    backgroundColor: '#1C1C1E',
+    color: '#FFFFFF',
   },
   textArea: {
     height: 100,
@@ -252,6 +309,9 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#F5F5F5',
     borderRadius: 12,
+  },
+  darkPickerContainer: {
+    backgroundColor: '#1C1C1E',
   },
   pickerTitle: {
     fontSize: 16,
@@ -282,19 +342,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  darkIconOption: {
+    backgroundColor: '#2C2C2E',
+  },
   headerButton: {
     padding: 8,
     marginHorizontal: 8,
     borderRadius: 8,
     backgroundColor: '#F5F5F5',
   },
+  darkHeaderButton: {
+    backgroundColor: '#1C1C1E',
+  },
   headerButtonPressed: {
     opacity: 0.7,
-    backgroundColor: '#E5E5E5',
   },
   saveButtonText: {
     fontSize: 16,
     fontWeight: '600',
+    color: '#6B4EFF',
+  },
+  darkSaveButtonText: {
     color: '#6B4EFF',
   },
 });

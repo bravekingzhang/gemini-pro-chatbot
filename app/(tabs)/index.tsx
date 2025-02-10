@@ -12,6 +12,7 @@ import {
   TouchableWithoutFeedback,
   Text,
   Alert,
+  Image,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -25,8 +26,15 @@ import { nanoid } from 'nanoid/non-secure';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Clipboard from 'expo-clipboard';
 import { useTheme } from '@/contexts/ThemeContext';
+import * as ImagePicker from 'expo-image-picker';
 
 const API_KEY_STORAGE_KEY = '@gemini_api_key';
+
+type ChatMessage = {
+  role: 'user' | 'system' | 'assistant';
+  content: string;
+  image?: string | null;
+};
 
 export default function ChatScreen() {
   const { agentId, chatId } = useLocalSearchParams<{ agentId: string; chatId: string }>();
@@ -39,6 +47,7 @@ export default function ChatScreen() {
   const [apiKey, setApiKey] = useState<string | null>(null);
   const flatListRef = useRef<FlatList>(null);
   const { isDarkMode } = useTheme();
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     loadApiKey();
@@ -157,19 +166,40 @@ export default function ChatScreen() {
     }
   };
 
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission needed', 'Sorry, we need camera roll permissions to make this work!');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setSelectedImage(result.assets[0].uri);
+    }
+  };
+
   const handleSend = async () => {
-    if (!inputText.trim() || !currentChat || !currentAgent || !apiKey) return;
+    if ((!inputText.trim() && !selectedImage) || !currentChat || !currentAgent || !apiKey) return;
 
     const userMessage: MessageType = {
       id: nanoid(),
       role: 'user',
       content: inputText.trim(),
       timestamp: Date.now(),
+      image: selectedImage,
     };
 
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
     setInputText('');
+    setSelectedImage(null);
     setIsLoading(true);
     Keyboard.dismiss();
 
@@ -182,14 +212,22 @@ export default function ChatScreen() {
         timestamp: Date.now(),
       };
 
-      // Add empty assistant message first
       setMessages(prev => [...prev, assistantMessage]);
 
+      // 构建发送给模型的消息
+      const messagesToSend = [
+        { role: 'system', content: currentAgent.systemPrompt },
+        ...updatedMessages.map(m => ({
+          role: m.role,
+          content: m.content,
+          image: m.image,
+        }))
+      ];
+
       await streamCompletion(
-        [{ role: 'system', content: currentAgent.systemPrompt }, ...updatedMessages.map(m => ({ role: m.role, content: m.content }))],
+        messagesToSend,
         (chunk) => {
           responseContent += chunk;
-          // Update the last message's content with each chunk
           setMessages(prev => {
             const updated = [...prev];
             updated[updated.length - 1] = {
@@ -201,11 +239,12 @@ export default function ChatScreen() {
         },
         (error) => {
           console.error('Error in stream:', error);
+          setIsLoading(false);
+          setMessages(prevMessages => prevMessages.slice(0, -1)); // Remove the failed assistant message
           Alert.alert('Error', 'Failed to get response from AI');
         },
         async () => {
           setIsLoading(false);
-          // Save the complete chat after streaming is done
           const updatedChat: Chat = {
             ...currentChat,
             messages: [...updatedMessages, { ...assistantMessage, content: responseContent }],
@@ -218,6 +257,7 @@ export default function ChatScreen() {
     } catch (error) {
       console.error('Error sending message:', error);
       setIsLoading(false);
+      setMessages(prevMessages => prevMessages.slice(0, -1)); // Remove the failed assistant message
       Alert.alert('Error', 'Failed to send message');
     }
   };
@@ -269,6 +309,7 @@ export default function ChatScreen() {
         },
         (error) => {
           console.error('Error in stream:', error);
+          setIsLoading(false);
           Alert.alert('Error', 'Failed to regenerate response');
         },
         () => {
@@ -386,43 +427,80 @@ export default function ChatScreen() {
             keyboardShouldPersistTaps="handled"
           />
           <View style={[styles.inputContainer, isDarkMode && styles.darkInputContainer]}>
-            <TextInput
-              style={[
-                styles.input,
-                { maxHeight: 100 },
-                isDarkMode && styles.darkInput,
-              ]}
-              value={inputText}
-              onChangeText={setInputText}
-              placeholder={apiKey ? "Type a message..." : "Please set your API key in settings"}
-              placeholderTextColor={isDarkMode ? '#666666' : '#999999'}
-              multiline
-              editable={!!apiKey}
-              onFocus={() => {
-                setTimeout(() => {
-                  flatListRef.current?.scrollToEnd({ animated: true });
-                }, 100);
-              }}
-            />
-            <Pressable
-              style={[
-                styles.sendButton,
-                (!inputText.trim() || !apiKey) && styles.sendButtonDisabled,
-                isDarkMode && styles.darkSendButton,
-              ]}
-              onPress={handleSend}
-              disabled={!inputText.trim() || isLoading || !apiKey}
-            >
-              {isLoading ? (
-                <ActivityIndicator color="#FFFFFF" />
-              ) : (
+            <View style={styles.inputRow}>
+              <Pressable
+                style={[
+                  styles.attachButton,
+                  isDarkMode && styles.darkAttachButton,
+                  selectedImage && styles.attachButtonActive
+                ]}
+                onPress={pickImage}
+              >
                 <MaterialIcons
-                  name="send"
+                  name="image"
                   size={24}
-                  color={inputText.trim() && apiKey ? '#FFFFFF' : isDarkMode ? '#666666' : '#999999'}
+                  color={selectedImage ? '#6B4EFF' : isDarkMode ? '#FFFFFF' : '#000000'}
                 />
-              )}
-            </Pressable>
+              </Pressable>
+              <View style={styles.inputWrapper}>
+                {selectedImage && (
+                  <View style={[
+                    styles.selectedImageContainer,
+                    isDarkMode && styles.darkSelectedImageContainer
+                  ]}>
+                    <Image 
+                      source={{ uri: selectedImage }} 
+                      style={styles.selectedImage}
+                      resizeMode="cover"
+                    />
+                    <Pressable
+                      style={styles.removeImageButton}
+                      onPress={() => setSelectedImage(null)}
+                      hitSlop={8}
+                    >
+                      <MaterialIcons name="close" size={16} color="#FFFFFF" />
+                    </Pressable>
+                  </View>
+                )}
+                <TextInput
+                  style={[
+                    styles.input,
+                    isDarkMode && styles.darkInput,
+                    selectedImage && styles.inputWithImage
+                  ]}
+                  value={inputText}
+                  onChangeText={setInputText}
+                  placeholder={apiKey ? "Type a message..." : "Please set your API key in settings"}
+                  placeholderTextColor={isDarkMode ? '#666666' : '#999999'}
+                  multiline
+                  editable={!!apiKey}
+                  onFocus={() => {
+                    setTimeout(() => {
+                      flatListRef.current?.scrollToEnd({ animated: true });
+                    }, 100);
+                  }}
+                />
+              </View>
+              <Pressable
+                style={[
+                  styles.sendButton,
+                  (!inputText.trim() && !selectedImage || !apiKey) && styles.sendButtonDisabled,
+                  isDarkMode && styles.darkSendButton,
+                ]}
+                onPress={handleSend}
+                disabled={(!inputText.trim() && !selectedImage) || isLoading || !apiKey}
+              >
+                {isLoading ? (
+                  <ActivityIndicator color="#FFFFFF" />
+                ) : (
+                  <MaterialIcons
+                    name="send"
+                    size={24}
+                    color={(inputText.trim() || selectedImage) && apiKey ? '#FFFFFF' : isDarkMode ? '#666666' : '#999999'}
+                  />
+                )}
+              </Pressable>
+            </View>
           </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
@@ -475,33 +553,80 @@ const styles = StyleSheet.create({
     color: '#999999',
   },
   inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
     backgroundColor: '#FFFFFF',
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: '#E5E5E5',
-    paddingTop: 16,
+    paddingVertical: 12,
     paddingHorizontal: 16,
-    paddingBottom: 16,
   },
   darkInputContainer: {
     backgroundColor: '#000000',
     borderTopColor: '#333333',
   },
-  input: {
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+  },
+  inputWrapper: {
     flex: 1,
+    marginHorizontal: 8,
+  },
+  input: {
     backgroundColor: '#F5F5F5',
     borderRadius: 20,
     paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 12,
-    marginRight: 8,
+    paddingVertical: 12,
     color: '#000000',
     fontSize: 16,
+    minHeight: 44,
+  },
+  inputWithImage: {
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
   },
   darkInput: {
     backgroundColor: '#1C1C1E',
     color: '#FFFFFF',
+  },
+  attachButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F5F5F5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  attachButtonActive: {
+    backgroundColor: '#EDE9FF',
+  },
+  darkAttachButton: {
+    backgroundColor: '#1C1C1E',
+  },
+  selectedImageContainer: {
+    backgroundColor: '#F5F5F5',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 8,
+    marginBottom: -1,
+  },
+  darkSelectedImageContainer: {
+    backgroundColor: '#1C1C1E',
+  },
+  selectedImage: {
+    width: '100%',
+    height: 150,
+    borderRadius: 12,
+  },
+  removeImageButton: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   sendButton: {
     width: 44,

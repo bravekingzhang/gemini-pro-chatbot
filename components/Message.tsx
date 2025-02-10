@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, TextInput, Alert, Platform, Linking } from 'react-native';
+import { View, Text, StyleSheet, Pressable, TextInput, Alert, Platform, Linking, Image } from 'react-native';
 import { CodeBlock } from './CodeBlock';
 import { Message as MessageType } from '@/constants/Config';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -66,59 +66,66 @@ export const Message: React.FC<MessageProps> = ({ message, onEdit, onRegenerate,
     }
 
     return (
-      <Markdown
-        style={{
-          body: { ...styles.text, color: isDarkMode ? '#FFFFFF' : '#000000' },
-          code_inline: {
-            ...styles.codeBlock,
-            padding: 4,
-            borderRadius: 4,
-          },
-          code_block: {
-            ...styles.codeBlock,
-            padding: 12,
-            borderRadius: 8,
-            marginVertical: 8,
-          },
-          fence: {
-            ...styles.codeBlock,
-            padding: 12,
-            borderRadius: 8,
-            marginVertical: 8,
-          },
-          link: styles.link,
-          bullet_list: styles.list,
-          ordered_list: styles.list,
-          heading1: { ...styles.heading, ...styles.heading1 },
-          heading2: { ...styles.heading, ...styles.heading2 },
-          heading3: { ...styles.heading, ...styles.heading3 },
-          paragraph: {
-            marginVertical: 8,
-          },
-          list_item: {
-            marginVertical: 4,
-          },
-          strong: {
-            fontWeight: 'bold',
-          },
-          em: {
-            fontStyle: 'italic',
-          },
-        }}
-        onLinkPress={(url) => {
-          Alert.alert(
-            'Open Link',
-            'Do you want to open this link?',
-            [
-              { text: 'Cancel', style: 'cancel' },
-              { text: 'Open', onPress: () => Linking.openURL(url) },
-            ]
-          );
-          return false;
-        }}
-      >
-        {message.content}
-      </Markdown>
+      <>
+        {message.image && (
+          <View style={styles.imageContainer}>
+            <Image source={{ uri: message.image }} style={styles.image} />
+          </View>
+        )}
+        <Markdown
+          style={{
+            body: { ...styles.text, color: isDarkMode ? '#FFFFFF' : '#000000' },
+            code_inline: {
+              ...styles.codeBlock,
+              padding: 4,
+              borderRadius: 4,
+            },
+            code_block: {
+              ...styles.codeBlock,
+              padding: 12,
+              borderRadius: 8,
+              marginVertical: 8,
+            },
+            fence: {
+              ...styles.codeBlock,
+              padding: 12,
+              borderRadius: 8,
+              marginVertical: 8,
+            },
+            link: styles.link,
+            bullet_list: styles.list,
+            ordered_list: styles.list,
+            heading1: { ...styles.heading, ...styles.heading1 },
+            heading2: { ...styles.heading, ...styles.heading2 },
+            heading3: { ...styles.heading, ...styles.heading3 },
+            paragraph: {
+              marginVertical: 8,
+            },
+            list_item: {
+              marginVertical: 4,
+            },
+            strong: {
+              fontWeight: 'bold',
+            },
+            em: {
+              fontStyle: 'italic',
+            },
+          }}
+          onLinkPress={(url) => {
+            Alert.alert(
+              'Open Link',
+              'Do you want to open this link?',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Open', onPress: () => Linking.openURL(url) },
+              ]
+            );
+            return false;
+          }}
+        >
+          {message.content}
+        </Markdown>
+      </>
     );
   };
 
@@ -307,5 +314,15 @@ const styles = StyleSheet.create({
   },
   darkEditedLabel: {
     color: '#666666',
+  },
+  imageContainer: {
+    marginBottom: 8,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  image: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
   },
 }); 

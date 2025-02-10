@@ -9,6 +9,7 @@ export interface Message {
   content: string;
   timestamp: number;
   isEdited?: boolean;
+  image?: string | null;
 }
 
 export interface Chat {

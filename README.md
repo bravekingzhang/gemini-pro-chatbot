@@ -11,6 +11,45 @@ A beautiful and feature-rich mobile chat application powered by Google's Gemini 
 - 💾 Persistent message storage
 - ✏️ Message editing support
 - ⚙️ Customizable system prompts
+- 🖼️ Image understanding support
+- 🎭 Multiple AI agents with different personalities
+- 🔄 Message regeneration
+- 📱 Cross-platform (iOS & Android)
+
+## Screenshots
+
+### Chat Interface
+![Chat Interface](artificial/image.png)
+- Real-time streaming responses
+- Code syntax highlighting
+- Support for image input
+- Dark mode support
+
+### Agents Management
+![Agents](artificial/agents.png)
+- Create custom AI agents
+- Different personalities and purposes
+- Customizable system prompts
+- Easy agent switching
+
+### Content Discovery
+![Discover](artificial/discover.png)
+- Generate creative content
+- Share interesting responses
+- Multiple content types
+- Community interaction
+
+### Settings
+![Settings](artificial/settings.png)
+- Dark mode toggle
+- API key management
+- System prompt customization
+- Stream response settings
+
+### Dark Mode
+![Dark Mode](artificial/dark.png)
+
+
 
 ## Getting Started
 
@@ -35,16 +74,30 @@ A beautiful and feature-rich mobile chat application powered by Google's Gemini 
 
 ## Usage
 
-1. Launch the app and go to the Settings tab
-2. Enter your Gemini Pro API key
-3. Return to the Chat tab
-4. Start chatting with the AI!
+### Chat Interface
+- Type your message in the input box
+- Click the image icon to add images for analysis
+- Real-time streaming responses
+- Code blocks are automatically highlighted
+- Edit or regenerate messages as needed
 
-The AI assistant can help you with:
-- Answering questions
-- Writing and explaining code
-- Analyzing data
-- And much more!
+### Agents
+- Create custom agents for different purposes
+- Each agent has its own personality and system prompt
+- Switch between agents for different conversation styles
+- Default agents included for common use cases
+
+### Discover
+- Generate creative content like stories and poems
+- Share interesting AI responses
+- Like and collect favorite content
+- Explore community-shared content
+
+### Settings
+- Customize your experience
+- Toggle dark mode
+- Manage your API key
+- Configure system-wide preferences
 
 ## Tech Stack
 
@@ -53,6 +106,8 @@ The AI assistant can help you with:
 - React Navigation
 - AsyncStorage for persistence
 - Syntax highlighting for code blocks
+- Expo Image Picker
+- React Native Markdown
 
 ## Contributing
 

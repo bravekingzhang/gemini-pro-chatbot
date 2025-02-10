@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system';
 
 const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
 const API_KEY_STORAGE_KEY = '@gemini_api_key';
@@ -7,6 +8,7 @@ const API_KEY_STORAGE_KEY = '@gemini_api_key';
 type ChatMessage = {
   role: 'system' | 'user' | 'assistant';
   content: string;
+  image?: string | null;
 };
 
 export const streamCompletion = async (
@@ -21,12 +23,49 @@ export const streamCompletion = async (
       throw new Error('API key not found');
     }
 
-    console.log('Sending stream request with messages:', JSON.stringify(messages, null, 2));
+    // 处理消息中的图片
+    const processedMessages = await Promise.all(messages.map(async (message) => {
+      if (message.image) {
+        try {
+          const base64 = await FileSystem.readAsStringAsync(message.image, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
+
+          return {
+            role: message.role,
+            content: [
+              {
+                type: 'text',
+                text: message.content,
+              },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: `data:image/jpeg;base64,${base64}`,
+                },
+              },
+            ],
+          };
+        } catch (error) {
+          console.error('Error processing image:', error);
+          return {
+            role: message.role,
+            content: message.content,
+          };
+        }
+      }
+      return {
+        role: message.role,
+        content: message.content,
+      };
+    }));
+
+    console.log('Sending stream request with messages:', JSON.stringify(processedMessages, null, 2));
     console.log('Using API URL:', BASE_URL);
 
     const requestConfig = {
       model: 'gemini-2.0-pro-exp-02-05',
-      messages,
+      messages: processedMessages,
       stream: true,
     };
     console.log('Request config:', JSON.stringify(requestConfig, null, 2));
@@ -41,7 +80,6 @@ export const streamCompletion = async (
           'Accept': 'text/event-stream'
         },
         responseType: 'text',
-        timeout: 30000, // 30 seconds timeout
         validateStatus: (status) => {
           console.log('Response status:', status);
           return status >= 200 && status < 300;
