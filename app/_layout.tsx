@@ -10,7 +10,20 @@ function RootLayoutNav() {
   return (
     <SafeAreaProvider>
       <StatusBar style={isDarkMode ? 'light' : 'dark'} />
-      <Stack>
+      <Stack
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: isDarkMode ? '#000000' : '#FFFFFF',
+          },
+          headerTitleStyle: {
+            color: isDarkMode ? '#FFFFFF' : '#000000',
+          },
+          headerTintColor: isDarkMode ? '#FFFFFF' : '#000000',
+          contentStyle: {
+            backgroundColor: isDarkMode ? '#000000' : '#FFFFFF',
+          },
+        }}
+      >
         <Stack.Screen
           name="(tabs)"
           options={{ headerShown: false }}
@@ -20,15 +33,6 @@ function RootLayoutNav() {
           options={{
             headerShown: true,
             presentation: 'modal',
-            headerStyle: {
-              backgroundColor: isDarkMode ? '#000000' : '#FFFFFF',
-            },
-            headerTitleStyle: {
-              color: isDarkMode ? '#FFFFFF' : '#000000',
-              fontSize: 20,
-              fontWeight: '600',
-            },
-            headerShadowVisible: false,
           }}
         />
         <Stack.Screen
@@ -36,15 +40,6 @@ function RootLayoutNav() {
           options={{
             headerShown: true,
             presentation: 'modal',
-            headerStyle: {
-              backgroundColor: isDarkMode ? '#000000' : '#FFFFFF',
-            },
-            headerTitleStyle: {
-              color: isDarkMode ? '#FFFFFF' : '#000000',
-              fontSize: 20,
-              fontWeight: '600',
-            },
-            headerShadowVisible: false,
           }}
         />
       </Stack>

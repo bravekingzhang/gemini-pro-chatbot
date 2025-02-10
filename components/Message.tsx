@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, TextInput, Alert } from 'react-native';
+import { View, Text, StyleSheet, Pressable, TextInput, Alert, Platform, Linking } from 'react-native';
 import { CodeBlock } from './CodeBlock';
 import { Message as MessageType } from '@/constants/Config';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '@/contexts/ThemeContext';
+import Markdown from 'react-native-markdown-display';
 
 interface MessageProps {
   message: MessageType;
@@ -64,45 +65,61 @@ export const Message: React.FC<MessageProps> = ({ message, onEdit, onRegenerate,
       );
     }
 
-    const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
-    const parts = [];
-    let lastIndex = 0;
-    let match;
-
-    while ((match = codeBlockRegex.exec(message.content)) !== null) {
-      if (match.index > lastIndex) {
-        parts.push({
-          type: 'text',
-          content: message.content.slice(lastIndex, match.index),
-        });
-      }
-
-      parts.push({
-        type: 'code',
-        language: match[1] || 'javascript',
-        content: match[2].trim(),
-      });
-
-      lastIndex = match.index + match[0].length;
-    }
-
-    if (lastIndex < message.content.length) {
-      parts.push({
-        type: 'text',
-        content: message.content.slice(lastIndex),
-      });
-    }
-
-    return parts.map((part, index) => {
-      if (part.type === 'code') {
-        return <CodeBlock key={index} code={part.content} language={part.language} />;
-      }
-      return (
-        <Text key={index} style={[styles.text, isDarkMode && styles.darkText]}>
-          {part.content}
-        </Text>
-      );
-    });
+    return (
+      <Markdown
+        style={{
+          body: { ...styles.text, color: isDarkMode ? '#FFFFFF' : '#000000' },
+          code_inline: {
+            ...styles.codeBlock,
+            padding: 4,
+            borderRadius: 4,
+          },
+          code_block: {
+            ...styles.codeBlock,
+            padding: 12,
+            borderRadius: 8,
+            marginVertical: 8,
+          },
+          fence: {
+            ...styles.codeBlock,
+            padding: 12,
+            borderRadius: 8,
+            marginVertical: 8,
+          },
+          link: styles.link,
+          bullet_list: styles.list,
+          ordered_list: styles.list,
+          heading1: { ...styles.heading, ...styles.heading1 },
+          heading2: { ...styles.heading, ...styles.heading2 },
+          heading3: { ...styles.heading, ...styles.heading3 },
+          paragraph: {
+            marginVertical: 8,
+          },
+          list_item: {
+            marginVertical: 4,
+          },
+          strong: {
+            fontWeight: 'bold',
+          },
+          em: {
+            fontStyle: 'italic',
+          },
+        }}
+        onLinkPress={(url) => {
+          Alert.alert(
+            'Open Link',
+            'Do you want to open this link?',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Open', onPress: () => Linking.openURL(url) },
+            ]
+          );
+          return false;
+        }}
+      >
+        {message.content}
+      </Markdown>
+    );
   };
 
   return (
@@ -205,10 +222,39 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 16,
     lineHeight: 22,
-    color: '#000000',
   },
   darkText: {
     color: '#FFFFFF',
+  },
+  codeBlock: {
+    fontFamily: Platform.select({
+      ios: 'Menlo',
+      android: 'monospace',
+    }),
+    backgroundColor: '#1E1E1E',
+    color: '#FFFFFF',
+    fontSize: 14,
+  },
+  link: {
+    color: '#6B4EFF',
+    textDecorationLine: 'underline',
+  },
+  list: {
+    marginLeft: 8,
+  },
+  heading: {
+    fontWeight: 'bold',
+    marginVertical: 8,
+    color: '#000000',
+  },
+  heading1: {
+    fontSize: 24,
+  },
+  heading2: {
+    fontSize: 20,
+  },
+  heading3: {
+    fontSize: 18,
   },
   actionButtons: {
     flexDirection: 'row',
