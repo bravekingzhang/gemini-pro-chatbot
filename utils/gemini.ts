@@ -1,7 +1,8 @@
 import axios, { AxiosError } from 'axios';
-import { GEMINI_API_KEY } from '../constants/Config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
+const API_KEY_STORAGE_KEY = '@gemini_api_key';
 
 type ChatMessage = {
   role: 'system' | 'user' | 'assistant';
@@ -15,11 +16,16 @@ export const streamCompletion = async (
   onComplete: () => void
 ) => {
   try {
+    const apiKey = await AsyncStorage.getItem(API_KEY_STORAGE_KEY);
+    if (!apiKey) {
+      throw new Error('API key not found');
+    }
+
     console.log('Sending stream request with messages:', JSON.stringify(messages, null, 2));
     console.log('Using API URL:', BASE_URL);
 
     const requestConfig = {
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-pro-exp-02-05',
       messages,
       stream: true,
     };
@@ -31,7 +37,7 @@ export const streamCompletion = async (
       {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${GEMINI_API_KEY}`,
+          'Authorization': `Bearer ${apiKey}`,
           'Accept': 'text/event-stream'
         },
         responseType: 'text',
@@ -93,18 +99,23 @@ export const streamCompletion = async (
 
 export const generateCompletion = async (messages: ChatMessage[]) => {
   try {
+    const apiKey = await AsyncStorage.getItem(API_KEY_STORAGE_KEY);
+    if (!apiKey) {
+      throw new Error('API key not found');
+    }
+
     console.log('Sending completion request with messages:', JSON.stringify(messages, null, 2));
 
     const response = await axios.post(
       BASE_URL,
       {
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.0-pro-exp-02-05',
         messages,
       },
       {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${GEMINI_API_KEY}`
+          'Authorization': `Bearer ${apiKey}`
         }
       }
     );
