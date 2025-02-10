@@ -173,21 +173,23 @@ export default function ChatScreen() {
     setIsLoading(true);
     Keyboard.dismiss();
 
-    const assistantMessage: MessageType = {
-      id: nanoid(),
-      role: 'assistant',
-      content: '',
-      timestamp: Date.now(),
-    };
-
-    setMessages([...updatedMessages, assistantMessage]);
-
     try {
       let responseContent = '';
+      const assistantMessage: MessageType = {
+        id: nanoid(),
+        role: 'assistant',
+        content: '',
+        timestamp: Date.now(),
+      };
+
+      // Add empty assistant message first
+      setMessages(prev => [...prev, assistantMessage]);
+
       await streamCompletion(
         [{ role: 'system', content: currentAgent.systemPrompt }, ...updatedMessages.map(m => ({ role: m.role, content: m.content }))],
         (chunk) => {
           responseContent += chunk;
+          // Update the last message's content with each chunk
           setMessages(prev => {
             const updated = [...prev];
             updated[updated.length - 1] = {
@@ -201,18 +203,18 @@ export default function ChatScreen() {
           console.error('Error in stream:', error);
           Alert.alert('Error', 'Failed to get response from AI');
         },
-        () => {
+        async () => {
           setIsLoading(false);
+          // Save the complete chat after streaming is done
+          const updatedChat: Chat = {
+            ...currentChat,
+            messages: [...updatedMessages, { ...assistantMessage, content: responseContent }],
+            updatedAt: Date.now(),
+          };
+          await saveChat(updatedChat);
+          setCurrentChat(updatedChat);
         }
       );
-
-      const updatedChat: Chat = {
-        ...currentChat,
-        messages: [...updatedMessages, { ...assistantMessage, content: responseContent }],
-        updatedAt: Date.now(),
-      };
-      await saveChat(updatedChat);
-      setCurrentChat(updatedChat);
     } catch (error) {
       console.error('Error sending message:', error);
       setIsLoading(false);
