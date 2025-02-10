@@ -19,35 +19,39 @@ A beautiful and feature-rich mobile chat application powered by Google's Gemini 
 ## Screenshots
 
 ### Chat Interface
-![Chat Interface](artificial/image.png)
+<img src="artificial/image.png" alt="Chat Interface" width="200"/>
+
 - Real-time streaming responses
 - Code syntax highlighting
 - Support for image input
 - Dark mode support
 
 ### Agents Management
-![Agents](artificial/agents.png)
+<img src="artificial/agents.png" alt="Agents Management" width="200"/>
+
 - Create custom AI agents
 - Different personalities and purposes
 - Customizable system prompts
 - Easy agent switching
 
 ### Content Discovery
-![Discover](artificial/discover.png)
+<img src="artificial/discover.png" alt="Discover" width="200"/>
+
 - Generate creative content
 - Share interesting responses
 - Multiple content types
 - Community interaction
 
 ### Settings
-![Settings](artificial/settings.png)
+<img src="artificial/settings.png" alt="Settings" width="200"/>
+
 - Dark mode toggle
 - API key management
 - System prompt customization
 - Stream response settings
 
 ### Dark Mode
-![Dark Mode](artificial/dark.png)
+<img src="artificial/dark.png" alt="Dark Mode" width="200"/>
 
 
 
@@ -112,6 +116,22 @@ A beautiful and feature-rich mobile chat application powered by Google's Gemini 
 ## Contributing
 
 Feel free to open issues and pull requests for any improvements you'd like to add!
+
+## Follow My WeChat Official Account
+
+Stay updated with the latest AI development tips and tools:
+
+<div align="center">
+  <img src="artificial/wechat-qr.jpg" alt="WeChat Official Account QR Code" width="200"/>
+  <p><strong>WeChat Official Account: LaoMa XiaoZhang</strong></p>
+  <p>Scan the QR code to follow and get the latest updates on:</p>
+  <ul align="left">
+    <li>🤖 AI Programming Tips & Tricks</li>
+    <li>💻 Full-Stack Development Insights</li>
+    <li>🛠️ Productivity Tools and Workflows</li>
+    <li>🚀 Latest Tech Trends and Reviews</li>
+  </ul>
+</div>
 
 ## License
 
